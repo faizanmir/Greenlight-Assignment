@@ -4,5 +4,5 @@ import java.lang.Exception
 
 class SyncFailedException :Exception() {
     override val message: String
-        get() = "Sync failed"
+        get() = "Sync has failed"
 }
