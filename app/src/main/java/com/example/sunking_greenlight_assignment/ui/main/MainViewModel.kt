@@ -21,6 +21,11 @@ import java.util.*
 
 class MainViewModel constructor(dataManager: DataManager) : BaseViewModel<MainNavigator>(dataManager) {
 
+    /***
+     * This view model will act as a holder for mutable live data for
+     * holding reference to mutableLiveData which will be used by fragments
+     * for UI inflation
+     * **/
 
     var fragmentManager: FragmentManager? = null
     var countryList: MutableLiveData<List<Country>> = MutableLiveData(arrayListOf())
@@ -37,6 +42,11 @@ class MainViewModel constructor(dataManager: DataManager) : BaseViewModel<MainNa
     var selectedArea =  MutableLiveData<Area>()
 
 
+    /**
+     * This function triggers api request which which is used to populate the data for the first time
+     * and then consecutively will check if sync has occurred, While sync failure conditions can be made
+     * better ,Due to time limitation I have simply coded it to check if countries have been populated in the local DB
+     * **/
     fun populateLocalData() {
         viewModelScope.launch {
             try {
@@ -59,41 +69,57 @@ class MainViewModel constructor(dataManager: DataManager) : BaseViewModel<MainNa
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                getNavigator()?.showMessage("Oops something went wrong ,Please try again")
-                switchToCountries()
-                dataManager.setPerformSync(true)
+                //This check can be made better to check data sanctity ,Right now I am jusr checking if countries have been fetched
+                //and assume that fetch as happened
+                viewModelScope.launch {
+                    dataManager.getAllCountries().collect{
+                        if(it.isEmpty())
+                        {
+                            getNavigator()?.showMessage("Oops sync encountered an error ,Please try again")
+                            dataManager.setPerformSync(true)
+                        }else {
+                            switchToCountries()
+                            dataManager.setPerformSync(false)
+                        }
+                    }
+                }
+
             }
         }
 
     }
 
 
+    /**
+     *
+     * This function is used to fetch list of countries from the repository which in-turn will
+     * check for data in local db , same applies for all other functions which fetch other
+     * parameters such as zones and areas
+     *
+     * **/
     fun fetchCountries() {
         viewModelScope.launch {
-            try {
                 withContext(IO) {
                     dataManager.getAllCountries().collect {
                         if(it.isNotEmpty()) {
                             countryList.postValue(it)
-                        }else{
-                            throw SyncFailedException()
                         }
 
                     }
                 }
-            }catch (e:Exception)
-            {
-                e.printStackTrace()
-                getNavigator()?.showMessage(e.message!!)
-                dataManager.setPerformSync(true)
-            }
         }
     }
 
-    private fun fetchZone(territory: String) {
+
+    /**
+     * All functions which fetch subcategories such as zone, region and area have a
+     * @param query - which is used to run query in the local db once the db is populated
+     */
+
+    private fun fetchZone(query: String) {
         viewModelScope.launch {
             withContext(IO) {
-                dataManager.getZonesWhereTerritoryIs(territory).collect {
+                dataManager.getZonesWhereTerritoryIs(query).collect {
                     zoneList.postValue(it)
                 }
             }
@@ -133,6 +159,8 @@ class MainViewModel constructor(dataManager: DataManager) : BaseViewModel<MainNa
         }
     }
 
+
+    //fetches countries first and then makes a fragment transaction
     private fun switchToCountries() {
         fetchCountries()
         fragmentManager?.beginTransaction()
@@ -142,6 +170,7 @@ class MainViewModel constructor(dataManager: DataManager) : BaseViewModel<MainNa
     }
 
 
+    //fetches zone first and then makes a fragment transaction
     fun switchToZone(query: String) {
         fetchZone(query)
         fragmentManager?.beginTransaction()
@@ -151,6 +180,7 @@ class MainViewModel constructor(dataManager: DataManager) : BaseViewModel<MainNa
 
     }
 
+    //fetches regions first and then makes a fragment transaction
     fun switchToRegion(query: String) {
         fetchRegion(query)
         fragmentManager?.beginTransaction()
@@ -177,6 +207,7 @@ class MainViewModel constructor(dataManager: DataManager) : BaseViewModel<MainNa
 
     }
 
+    //checks if the name is present in the list
     fun performEmployeeTextSearch(query:String)
     {
         if(query.isNotEmpty()) {
@@ -222,7 +253,7 @@ class MainViewModel constructor(dataManager: DataManager) : BaseViewModel<MainNa
                 areaList.value =  aList.sortedBy { area -> area.id  }
             }
             else ->{
-                Log.e("TAG", "sortListByDescending:Type not found ", )
+                Log.d("TAG", "sortList:Type not found ", )
             }
         }
     }
@@ -233,33 +264,41 @@ class MainViewModel constructor(dataManager: DataManager) : BaseViewModel<MainNa
     inline fun <reified T> sortListByDescending(list: List<T>)
     {
 
-        when (T::class.java){
+        when (T::class.java) {
             Country::class.java -> {
-                val cList  = list as List<Country>
+                val cList = list as List<Country>
                 countryList.value = cList.sortedByDescending { country -> country.id }
             }
             Zone::class.java -> {
-                val zList  = list as List<Zone>
-                zoneList.value =  zList.sortedByDescending {zone -> zone.id  }
+                val zList = list as List<Zone>
+                zoneList.value = zList.sortedByDescending { zone -> zone.id }
             }
             Region::class.java -> {
-                val rList =  list as  List<Region>
-                regionList.value =rList.sortedByDescending{ region: Region ->region.id  }
+                val rList = list as List<Region>
+                regionList.value = rList.sortedByDescending { region: Region -> region.id }
             }
-            Area::class.java ->{
-                val aList  = list as List<Area>
-                areaList.value =  aList.sortedByDescending { area -> area.id  }
+            Area::class.java -> {
+                val aList = list as List<Area>
+                areaList.value = aList.sortedByDescending { area -> area.id }
             }
-            else ->{
-                Log.e("TAG", "sortListByDescending:Type not found ", )
+            else -> {
+                Log.d("TAG", "sortListByDescending:Type not found ",)
             }
         }
+
     }
 
 
     companion object{
         private const val TAG = "MainViewModel"
+
+        fun writeCode()
+        {
+
+        }
     }
+
+
 }
 
 

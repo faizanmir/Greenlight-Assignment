@@ -14,6 +14,7 @@ import javax.inject.Inject
 
 class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(), MainNavigator {
 
+
     @Inject
     lateinit var factory: ViewModelProviderFactory
 

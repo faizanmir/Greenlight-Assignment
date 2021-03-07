@@ -3,7 +3,9 @@ package com.example.sunking_greenlight_assignment.data.local.database
 import com.example.sunking_greenlight_assignment.models.*
 import kotlinx.coroutines.flow.Flow
 
-
+/**
+ * This interface manages all the data access from the view model
+ * **/
 interface DbManager {
     suspend fun getAllCountries(): Flow<List<Country>>
     suspend fun getAllZones(): Flow<List<Zone>>
@@ -19,4 +21,5 @@ interface DbManager {
     suspend fun getRegionWhereTerritoryIs(territory: String): Flow<List<Region>>
     suspend fun getAreaWhereTerritoryIs(territory: String): Flow<List<Area>>
     suspend fun getEmployeeWhereTerritoryIs(territory: String): Flow<List<Employee>>
+
 }

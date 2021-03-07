@@ -11,7 +11,11 @@ import retrofit2.Retrofit
 @Module
 open class MainModule {
 
-    //Better to make Dagger scopes and make this last only until main activity exists
+    /**
+     * Better to make Dagger scopes and make this last only until main activity exists
+     * this can be achieved with @Scope annotation
+     * not implemented in this example
+     * **/
 
     @Provides
     fun provideMainRepository(
