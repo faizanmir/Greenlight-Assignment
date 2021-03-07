@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="vmMain"
+            type="com.example.sunking_greenlight_assignment.ui.main.MainViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="@{vmMain.selectedArea.area}"
+            android:textAlignment="center"
+            android:textColor="#000000"
+            android:textSize="30sp"
+            android:layout_marginTop="50dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <EditText
+            android:id="@+id/searchEt"
+            android:layout_width="0dp"
+            android:background="@drawable/search_background"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:hint="Search"
+            android:paddingLeft="10dp"
+            android:paddingTop="10dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="10dp"
+            android:textSize="24sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/title" />
+
+        <TextView
+            android:id="@+id/zone_header"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="Name"
+            android:background="#000000"
+            android:textAlignment="center"
+            android:textSize="30sp"
+            android:textColor="@color/white"
+            app:layout_constraintTop_toBottomOf="@id/searchEt"
+            android:layout_marginTop="50dp"
+            app:layout_constraintEnd_toEndOf="@id/employee_rv"
+            app:layout_constraintStart_toStartOf="@id/employee_rv"
+            />
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/employee_rv"
+            android:layout_width="200dp"
+            android:layout_height="0dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/zone_header" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
